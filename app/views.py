@@ -2,9 +2,14 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from .models import Car, Product, Category
+from .serializers import CarSerializer, ProductSerializer
+from rest_framework import viewsets
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from .models import Car
-from .serializers import CarSerializer
-
 
 @api_view(['GET', 'POST'])
 def car_list_create(request):
@@ -42,14 +47,6 @@ def car_detail(request, pk):
     if request.method == 'DELETE':
         car.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-'''# views.py
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Car
-from .serializers import CarSerializer
-
 
 class CarListCreateAPIView(APIView):
     def get(self, request):
@@ -95,7 +92,24 @@ class CarDetailAPIView(APIView):
             return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
         car.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-'''
 
+class ProductViewSet(viewsets.ModelViewSet):
+    """
+    CRUD:
+    GET    /api/products/
+    POST   /api/products/
+    GET    /api/products/{id}/
+    PUT    /api/products/{id}/
+    DELETE /api/products/{id}/
+    """
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+class ProductListByChildCategorySlug(ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        slug = self.kwargs['slug']
+        return Product.objects.filter(category__slug=slug)
 
 # Create your views here.
