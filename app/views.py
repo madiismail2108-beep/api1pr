@@ -13,6 +13,8 @@ from .models import Car
 from rest_framework.permissions import BasePermission
 from django.utils import timezone
 from datetime import timedelta
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class CanUpdateWithin4Hours(BasePermission):
     message = "You can edit this object within 4 hours"
@@ -63,6 +65,9 @@ def car_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class CarListCreateAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         cars = Car.objects.all()
         serializer = CarSerializer(cars, many=True)
