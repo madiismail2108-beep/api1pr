@@ -14,8 +14,11 @@ from rest_framework.permissions import BasePermission, IsAuthenticated
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 
+class HundredPagination(PageNumberPagination):
+    page_size = 100
+    
 class CanUpdateWithin4Hours(BasePermission):
     message = "You can edit this object within 4 hours"
     
@@ -69,7 +72,7 @@ class CarListCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        cars = Car.objects.all()
+        cars = Car.objects.select_related('brand').prefetch_related('owners')
         serializer = CarSerializer(cars, many=True)
         return Response(serializer.data)
 
@@ -121,7 +124,9 @@ class ProductViewSet(viewsets.ModelViewSet):
     PUT    /api/products/{id}/
     DELETE /api/products/{id}/
     """
-    queryset = Product.objects.all()
+    queryset = Product.objects.select_related('category') \
+                              .prefetch_related('images')
+
     serializer_class = ProductSerializer
 
 class ProductListByChildCategorySlug(ListAPIView):
@@ -129,7 +134,10 @@ class ProductListByChildCategorySlug(ListAPIView):
 
     def get_queryset(self):
         slug = self.kwargs['slug']
-        return Product.objects.filter(category__slug=slug)
+        return Product.objects.select_related('category') \
+                               .prefetch_related('images') \
+                               .filter(category__slug=slug)
+
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
