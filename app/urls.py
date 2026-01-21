@@ -4,6 +4,7 @@ from .views import (
     CarDetailAPIView,
     ProductViewSet,
     ProductListByChildCategorySlug,
+    LogoutView,
 )
 from rest_framework.routers import DefaultRouter
 
@@ -21,5 +22,7 @@ urlpatterns = [
         ProductListByChildCategorySlug.as_view(),
         name='products-by-child-category'
     ),
+    path("logout/", LogoutView.as_view(), name="logout"),
+
 ]
 

@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Car
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.authentication import TokenAuthentication
@@ -130,5 +130,13 @@ class ProductListByChildCategorySlug(ListAPIView):
     def get_queryset(self):
         slug = self.kwargs['slug']
         return Product.objects.filter(category__slug=slug)
+
+class LogoutView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.auth.delete()
+        return Response({"detail": "Successfully logged out."},status=status.HTTP_204_NO_CONTENT)
 
 # Create your views here.
