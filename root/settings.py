@@ -129,3 +129,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+        "TIMEOUT": 60 * 5,  # 5 minut
+    }
+}
+
